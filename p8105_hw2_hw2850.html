@@ -475,68 +475,63 @@ trans_ent %&gt;%
 ## 17 Howard Beach                  Rockaway</code></pre>
 <p>#Problem2</p>
 <pre class="r"><code>library(readxl)
-mr_trash_wheel=read_excel(&quot;data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx&quot;, &quot;Mr. Trash Wheel&quot;, range = &quot;A2:N535&quot;) %&gt;% 
+mr_trash_wheel=read_excel(&quot;data/Trash Wheel Collection Data.xlsx&quot;, &quot;Mr. Trash Wheel&quot;, range = &quot;A2:N550&quot;) %&gt;% 
   janitor::clean_names(dat = .) %&gt;% 
   drop_na(data = ., dumpster) %&gt;% 
   mutate(sports_balls=as.integer(sports_balls),
-         name = &quot;Mr.Trash Wheel&quot;)</code></pre>
-<pre class="r"><code>professor_trash_wheel=read_excel(&quot;data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx&quot;, &quot;Professor Trash Wheel&quot;) %&gt;% 
+         dumpster = as.character(dumpster),
+         name = &quot;Mr.Trash Wheel&quot;) %&gt;% 
+  select(.data = ., name, everything())</code></pre>
+<pre class="r"><code>professor_trash_wheel=read_excel(&quot;data/Trash Wheel Collection Data.xlsx&quot;, &quot;Professor Trash Wheel&quot;) %&gt;% 
   janitor::clean_names(dat = .) %&gt;% 
   drop_na(data=., dumpster) %&gt;% 
-  mutate(sports_balls=as.integer(sports_balls),
+  mutate(year = as.character(year),
          dumpster = as.character(dumpster),
-         name = &quot;Professor Trash Wheel&quot;)</code></pre>
+         name = &quot;Professor Trash Wheel&quot;) %&gt;% 
+  select(.data = ., name, everything())</code></pre>
 <pre class="r"><code>trash_wheel=bind_rows(mr_trash_wheel, professor_trash_wheel)
 summary(trash_wheel)
-##    dumpster            month                year     
-##  Length:525         Length:525         Min.   :2014  
-##  Class :character   Class :character   1st Qu.:2016  
-##  Mode  :character   Mode  :character   Median :2018  
-##                                        Mean   :2017  
-##                                        3rd Qu.:2019  
-##                                        Max.   :2021  
-##                                        NA&#39;s   :1     
-##       date                         weight_tons       volume_cubic_yards
-##  Min.   :1900-01-20 00:00:00.00   Min.   :   0.610   Min.   :   6.00   
-##  1st Qu.:2016-04-30 00:00:00.00   1st Qu.:   2.480   1st Qu.:  15.00   
-##  Median :2018-04-16 00:00:00.00   Median :   3.090   Median :  15.00   
-##  Mean   :2017-09-06 07:52:40.30   Mean   :   5.781   Mean   :  28.57   
-##  3rd Qu.:2019-06-12 00:00:00.00   3rd Qu.:   3.580   3rd Qu.:  15.00   
-##  Max.   :2021-01-04 00:00:00.00   Max.   :1449.700   Max.   :6982.00   
-##  NA&#39;s   :1                                                             
-##  plastic_bottles   polystyrene     cigarette_butts    glass_bottles     
-##  Min.   :   210   Min.   :   210   Min.   :     980   Min.   :    0.00  
-##  1st Qu.:  1080   1st Qu.:   990   1st Qu.:    5500   1st Qu.:    8.00  
-##  Median :  1980   Median :  2000   Median :   11000   Median :   18.00  
-##  Mean   :  4050   Mean   :  4113   Mean   :   44233   Mean   :   40.35  
-##  3rd Qu.:  2890   3rd Qu.:  3160   3rd Qu.:   28000   3rd Qu.:   31.00  
-##  Max.   :860215   Max.   :870177   Max.   :11108320   Max.   :10171.00  
-##                                                                         
-##   grocery_bags      chip_bags       sports_balls     homes_powered     
-##  Min.   :    50   Min.   :   180   Min.   :   0.00   Min.   :    0.00  
-##  1st Qu.:   480   1st Qu.:   880   1st Qu.:   3.00   1st Qu.:   33.67  
-##  Median :   890   Median :  1570   Median :   8.00   Median :   48.83  
-##  Mean   :  2343   Mean   :  3922   Mean   :  20.27   Mean   :   82.51  
-##  3rd Qu.:  1760   3rd Qu.:  2760   3rd Qu.:  14.00   3rd Qu.:   57.17  
-##  Max.   :499448   Max.   :704792   Max.   :5315.00   Max.   :20530.00  
-##                                                                        
-##      name          
-##  Length:525        
-##  Class :character  
-##  Mode  :character  
-##                    
-##                    
-##                    
-## </code></pre>
+##      name             dumpster            month               year          
+##  Length:641         Length:641         Length:641         Length:641        
+##  Class :character   Class :character   Class :character   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+##                                                                             
+##                                                                             
+##                                                                             
+##                                                                             
+##       date                        weight_tons    volume_cubic_yards
+##  Min.   :1900-01-20 00:00:00.0   Min.   :0.610   Min.   : 6.00     
+##  1st Qu.:2016-11-17 00:00:00.0   1st Qu.:2.480   1st Qu.:15.00     
+##  Median :2018-08-09 00:00:00.0   Median :3.080   Median :15.00     
+##  Mean   :2018-06-12 03:31:10.2   Mean   :3.024   Mean   :15.22     
+##  3rd Qu.:2020-07-02 00:00:00.0   3rd Qu.:3.620   3rd Qu.:15.00     
+##  Max.   :2022-07-29 00:00:00.0   Max.   :5.620   Max.   :20.00     
+##                                                                    
+##  plastic_bottles  polystyrene    cigarette_butts  glass_bottles   
+##  Min.   : 210    Min.   :   48   Min.   :   900   Min.   :  0.00  
+##  1st Qu.:1110    1st Qu.:  780   1st Qu.:  4400   1st Qu.:  9.00  
+##  Median :2110    Median : 1460   Median :  8000   Median : 18.00  
+##  Mean   :2465    Mean   : 2089   Mean   : 19664   Mean   : 20.71  
+##  3rd Qu.:3100    3rd Qu.: 2870   3rd Qu.: 23000   3rd Qu.: 28.00  
+##  Max.   :9830    Max.   :11528   Max.   :310000   Max.   :110.00  
+##                                                                   
+##   grocery_bags     chip_bags      sports_balls   homes_powered  
+##  Min.   :   24   Min.   :  180   Min.   : 0.00   Min.   : 0.00  
+##  1st Qu.:  360   1st Qu.:  800   1st Qu.: 6.00   1st Qu.:34.67  
+##  Median :  780   Median : 1340   Median :11.00   Median :49.00  
+##  Mean   : 1218   Mean   : 2406   Mean   :12.56   Mean   :44.11  
+##  3rd Qu.: 1480   3rd Qu.: 2684   3rd Qu.:18.00   3rd Qu.:57.50  
+##  Max.   :13450   Max.   :20100   Max.   :56.00   Max.   :93.67  
+##                                  NA&#39;s   :94      NA&#39;s   :73</code></pre>
 <pre class="r"><code>mr_trash_wheel_2020=filter(mr_trash_wheel, year==&quot;2020&quot;)</code></pre>
 <ul>
-<li>The combined data set size is 525, 15.</li>
+<li>The combined data set size is 641, 15.</li>
 <li>The key variables are chip_bags, cigarette_butts, date, dumpster,
 glass_bottles, grocery_bags, homes_powered, month, name,
 plastic_bottles, polystyrene, sports_balls, volume_cubic_yards,
 weight_tons, year.</li>
 <li>The total weight of trash collected by Professor Trash Wheel is
-135.5.</li>
+190.12.</li>
 <li>The total number of sports balls collected by Mr.Trash Wheel in 2020
 is 856.</li>
 </ul>
