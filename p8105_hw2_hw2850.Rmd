@@ -6,25 +6,175 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+#Problem 1
+```{r}
+library(tidyverse)
+trans_ent = 
+  read_csv(
+    "data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv",
+    col_types = cols(Route8 = "c", Route9 = "c", Route10 = "c", Route11 = "c")) %>% 
+  janitor::clean_names() %>% 
+  select(
+    line, station_name, station_latitude, station_longitude, 
+    starts_with("route"), entry, exit_only, vending, entrance_type, 
+    ada) %>% 
+  mutate(entry = ifelse(entry == "YES", TRUE, FALSE))
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+trans_ent %>% 
+  select(station_name, line) %>% 
+  distinct
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+trans_ent %>% 
+  filter(ada == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
+```
+
+```{r}
+trans_ent %>% 
+  filter(vending == "NO") %>% 
+  pull(entry) %>% 
+  mean
+```
+
+```{r}
+trans_ent %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_num",
+    values_to = "route") %>% 
+  filter(route == "A") %>% 
+  select(station_name, line) %>% 
+  distinct
+
+trans_ent %>% 
+  pivot_longer(
+    route1:route11,
+    names_to = "route_num",
+    values_to = "route") %>% 
+  filter(route == "A", ada == TRUE) %>% 
+  select(station_name, line) %>% 
+  distinct
+```
+
+
+#Problem2
+```{r} 
+library(readxl)
+mr_trash_wheel=read_excel("data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", "Mr. Trash Wheel", range = "A2:N535") %>% 
+  janitor::clean_names(dat = .) %>% 
+  drop_na(data = ., dumpster) %>% 
+  mutate(sports_balls=as.integer(sports_balls),
+         name = "Mr.Trash Wheel")
+```
+
+```{r}
+professor_trash_wheel=read_excel("data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", "Professor Trash Wheel") %>% 
+  janitor::clean_names(dat = .) %>% 
+  drop_na(data=., dumpster) %>% 
+  mutate(sports_balls=as.integer(sports_balls),
+         dumpster = as.character(dumpster),
+         name = "Professor Trash Wheel")
+```
+
+```{r}
+trash_wheel=bind_rows(mr_trash_wheel, professor_trash_wheel)
+summary(trash_wheel)
+```
+
+```{r}
+mr_trash_wheel_2020=filter(mr_trash_wheel, year=="2020")
+```
+* The combined data set size is `r dim(trash_wheel)`.
+* The key variables are `r ls(trash_wheel)`.
+* The total weight of trash collected by Professor Trash Wheel is `r sum(professor_trash_wheel$weight_tons)`.
+* The total number of sports balls collected by Mr.Trash Wheel in 2020 is `r sum(mr_trash_wheel_2020$sports_balls)`.
+
+
+#Problem3
+```{r}
+pols=read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>% 
+  janitor::clean_names(dat = .) %>% 
+  separate(mon, into = c("year","month","day")) %>% 
+  mutate(.data = .,
+    month = replace(month, month == "01", "jan"),
+    month = replace(month, month == "02", "feb"),
+    month = replace(month, month == "03", "mar"),
+    month = replace(month, month == "04", "apr"),
+    month = replace(month, month == "05", "may"),
+    month = replace(month, month == "06", "jun"),
+    month = replace(month, month == "07", "jul"),
+    month = replace(month, month == "08", "aug"),
+    month = replace(month, month == "09", "sep"),
+    month = replace(month, month == "10", "oct"),
+    month = replace(month, month == "11", "nov"),
+    month = replace(month, month == "12", "dec"),
+    president = prez_gop + prez_dem) %>% 
+  select(.data = ., -c(prez_dem, prez_gop, day))
+```
+* The pols dataset has a size of `r dim(pols)`.
+* The pols dataset has variables `r ls(pols)`.
+* The pols dataset has a range of year `r range(pols$year)`
+
+```{r}
+snp=read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>% 
+  janitor::clean_names(dat = .) %>% 
+  separate(date, into = c("month","day","year")) %>%
+  mutate(.data = .,
+    month = replace(month, month == "1", "jan"),
+    month = replace(month, month == "2", "feb"),
+    month = replace(month, month == "3", "mar"),
+    month = replace(month, month == "4", "apr"),
+    month = replace(month, month == "5", "may"),
+    month = replace(month, month == "6", "jun"),
+    month = replace(month, month == "7", "jul"),
+    month = replace(month, month == "8", "aug"),
+    month = replace(month, month == "9", "sep"),
+    month = replace(month, month == "10", "oct"),
+    month = replace(month, month == "11", "nov"),
+    month = replace(month, month == "12", "dec")) %>% 
+  mutate(.data = ., year = as.numeric(year),
+         y = if_else(year < 22, 2000, 1900),
+         year = year + y,
+         year = as.character(year),
+         ) %>% 
+  select(.data = .,-day,-y) %>% 
+  relocate(year, month) 
+```
+* The snp dataset has a size of `r dim(snp)`.
+* The snp dataset has variables `r ls(snp)`.
+* The snp dataset has a range of year `r range(snp$year)`
+
+```{r}
+unemploy=read_csv(file = "./data/fivethirtyeight_datasets/unemployment.csv", col_types = "ccccccccccccc") %>% 
+  janitor::clean_names(dat = .) 
+
+unemploy_tidy_data=
+  pivot_longer(
+    unemploy,
+    jan:dec,
+    names_to = "month",
+    values_to = "unemployment_value") %>% 
+  mutate(.data = ., unemployment_value = as.numeric(unemployment_value))
+```
+* The unemployment dataset has a size of `r dim(unemploy_tidy_data)`.
+* The unemployment dataset has variables `r ls(unemploy_tidy_data)`.
+* The unemployment dataset has a range of year `r range(unemploy_tidy_data$year)`.
+
+```{r}
+snp_to_pols=
+  left_join(pols, snp, by = c("year", "month"))
+
+unemployment_snp_pols=
+  left_join(snp_to_pols, unemploy_tidy_data, by = c("year", "month"))
+```
+* The final dataset unemployment_snp_pols has a dimension `r dim(unemployment_snp_pols)`.
+* The final dataset has variables `r ls(unemployment_snp_pols)`.
+* The final dataset has a range of year `r range(unemployment_snp_pols$year)`.
