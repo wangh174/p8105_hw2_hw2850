@@ -12,12 +12,13 @@ knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 #Problem 1
 ```{r}
 library(tidyverse)
+library(dplyr)
 trans_ent = 
   read_csv(
     "data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv",
     col_types = cols(Route8 = "c", Route9 = "c", Route10 = "c", Route11 = "c")) %>% 
   janitor::clean_names() %>% 
-  select(
+  dplyr::select(
     line, station_name, station_latitude, station_longitude, 
     starts_with("route"), entry, exit_only, vending, entrance_type, 
     ada) %>% 
@@ -26,14 +27,14 @@ trans_ent =
 
 ```{r}
 trans_ent %>% 
-  select(station_name, line) %>% 
+  dplyr::select(station_name, line) %>% 
   distinct
 ```
 
 ```{r}
 trans_ent %>% 
   filter(ada == TRUE) %>% 
-  select(station_name, line) %>% 
+  dplyr::select(station_name, line) %>% 
   distinct
 ```
 
@@ -51,7 +52,7 @@ trans_ent %>%
     names_to = "route_num",
     values_to = "route") %>% 
   filter(route == "A") %>% 
-  select(station_name, line) %>% 
+  dplyr::select(station_name, line) %>% 
   distinct
 
 trans_ent %>% 
@@ -60,7 +61,7 @@ trans_ent %>%
     names_to = "route_num",
     values_to = "route") %>% 
   filter(route == "A", ada == TRUE) %>% 
-  select(station_name, line) %>% 
+  dplyr::select(station_name, line) %>% 
   distinct
 ```
 
@@ -74,7 +75,7 @@ mr_trash_wheel=read_excel("data/Trash Wheel Collection Data.xlsx", "Mr. Trash Wh
   mutate(sports_balls=as.integer(sports_balls),
          dumpster = as.character(dumpster),
          name = "Mr.Trash Wheel") %>% 
-  select(.data = ., name, everything())
+  dplyr::select(.data = ., name, everything())
 ```
 
 ```{r}
@@ -84,7 +85,7 @@ professor_trash_wheel=read_excel("data/Trash Wheel Collection Data.xlsx", "Profe
   mutate(year = as.character(year),
          dumpster = as.character(dumpster),
          name = "Professor Trash Wheel") %>% 
-  select(.data = ., name, everything())
+  dplyr::select(.data = ., name, everything())
 ```
 
 ```{r}
@@ -119,8 +120,8 @@ pols=read_csv(file = "./data/fivethirtyeight_datasets/pols-month.csv") %>%
     month = replace(month, month == "10", "oct"),
     month = replace(month, month == "11", "nov"),
     month = replace(month, month == "12", "dec"),
-    president = prez_gop + prez_dem) %>% 
-  select(.data = ., -c(prez_dem, prez_gop, day))
+    president = if_else(prez_gop<1, "dem", "gop")) %>% 
+  dplyr::select(.data = ., -c(day, prez_gop, prez_dem))
 ```
 * The pols dataset has a size of `r dim(pols)`.
 * The pols dataset has variables `r ls(pols)`.
@@ -148,7 +149,7 @@ snp=read_csv(file = "./data/fivethirtyeight_datasets/snp.csv") %>%
          year = year + y,
          year = as.character(year),
          ) %>% 
-  select(.data = .,-day,-y) %>% 
+  dplyr::select(.data = .,-day,-y) %>% 
   relocate(year, month) 
 ```
 * The snp dataset has a size of `r dim(snp)`.

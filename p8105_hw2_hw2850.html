@@ -372,18 +372,19 @@ pre code {
 
 <p>#Problem 1</p>
 <pre class="r"><code>library(tidyverse)
+library(dplyr)
 trans_ent = 
   read_csv(
     &quot;data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv&quot;,
     col_types = cols(Route8 = &quot;c&quot;, Route9 = &quot;c&quot;, Route10 = &quot;c&quot;, Route11 = &quot;c&quot;)) %&gt;% 
   janitor::clean_names() %&gt;% 
-  select(
+  dplyr::select(
     line, station_name, station_latitude, station_longitude, 
     starts_with(&quot;route&quot;), entry, exit_only, vending, entrance_type, 
     ada) %&gt;% 
   mutate(entry = ifelse(entry == &quot;YES&quot;, TRUE, FALSE))</code></pre>
 <pre class="r"><code>trans_ent %&gt;% 
-  select(station_name, line) %&gt;% 
+  dplyr::select(station_name, line) %&gt;% 
   distinct
 ## # A tibble: 465 × 2
 ##    station_name             line    
@@ -401,7 +402,7 @@ trans_ent =
 ## # … with 455 more rows</code></pre>
 <pre class="r"><code>trans_ent %&gt;% 
   filter(ada == TRUE) %&gt;% 
-  select(station_name, line) %&gt;% 
+  dplyr::select(station_name, line) %&gt;% 
   distinct
 ## # A tibble: 84 × 2
 ##    station_name                   line           
@@ -428,7 +429,7 @@ trans_ent =
     names_to = &quot;route_num&quot;,
     values_to = &quot;route&quot;) %&gt;% 
   filter(route == &quot;A&quot;) %&gt;% 
-  select(station_name, line) %&gt;% 
+  dplyr::select(station_name, line) %&gt;% 
   distinct
 ## # A tibble: 60 × 2
 ##    station_name                  line           
@@ -451,7 +452,7 @@ trans_ent %&gt;%
     names_to = &quot;route_num&quot;,
     values_to = &quot;route&quot;) %&gt;% 
   filter(route == &quot;A&quot;, ada == TRUE) %&gt;% 
-  select(station_name, line) %&gt;% 
+  dplyr::select(station_name, line) %&gt;% 
   distinct
 ## # A tibble: 17 × 2
 ##    station_name                  line            
@@ -481,14 +482,14 @@ mr_trash_wheel=read_excel(&quot;data/Trash Wheel Collection Data.xlsx&quot;, &qu
   mutate(sports_balls=as.integer(sports_balls),
          dumpster = as.character(dumpster),
          name = &quot;Mr.Trash Wheel&quot;) %&gt;% 
-  select(.data = ., name, everything())</code></pre>
+  dplyr::select(.data = ., name, everything())</code></pre>
 <pre class="r"><code>professor_trash_wheel=read_excel(&quot;data/Trash Wheel Collection Data.xlsx&quot;, &quot;Professor Trash Wheel&quot;) %&gt;% 
   janitor::clean_names(dat = .) %&gt;% 
   drop_na(data=., dumpster) %&gt;% 
   mutate(year = as.character(year),
          dumpster = as.character(dumpster),
          name = &quot;Professor Trash Wheel&quot;) %&gt;% 
-  select(.data = ., name, everything())</code></pre>
+  dplyr::select(.data = ., name, everything())</code></pre>
 <pre class="r"><code>trash_wheel=bind_rows(mr_trash_wheel, professor_trash_wheel)
 summary(trash_wheel)
 ##      name             dumpster            month               year          
@@ -552,8 +553,8 @@ is 856.</li>
     month = replace(month, month == &quot;10&quot;, &quot;oct&quot;),
     month = replace(month, month == &quot;11&quot;, &quot;nov&quot;),
     month = replace(month, month == &quot;12&quot;, &quot;dec&quot;),
-    president = prez_gop + prez_dem) %&gt;% 
-  select(.data = ., -c(prez_dem, prez_gop, day))</code></pre>
+    president = if_else(prez_gop&lt;1, &quot;dem&quot;, &quot;gop&quot;)) %&gt;% 
+  dplyr::select(.data = ., -c(day, prez_gop, prez_dem))</code></pre>
 <ul>
 <li>The pols dataset has a size of 822, 9.</li>
 <li>The pols dataset has variables gov_dem, gov_gop, month, president,
@@ -581,7 +582,7 @@ rep_dem, rep_gop, sen_dem, sen_gop, year.</li>
          year = year + y,
          year = as.character(year),
          ) %&gt;% 
-  select(.data = .,-day,-y) %&gt;% 
+  dplyr::select(.data = .,-day,-y) %&gt;% 
   relocate(year, month) </code></pre>
 <ul>
 <li>The snp dataset has a size of 787, 3.</li>
